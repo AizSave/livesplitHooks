@@ -1,0 +1,14 @@
+# IDE files
+.vscode
+bin
+
+# Build files
+build
+.gradle
+
+# Project specific
+steam_appid.txt
+debug.log
+latest-crash.log
+hs_err_pid*.log
+replay_pid*.log
