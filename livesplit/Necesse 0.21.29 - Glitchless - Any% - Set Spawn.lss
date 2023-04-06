@@ -18,16 +18,7 @@
   <AttemptHistory />
   <Segments>
     <Segment>
-      <Name>Evil's Protector #1</Name>
-      <Icon />
-      <SplitTimes>
-        <SplitTime name="Personal Best" />
-      </SplitTimes>
-      <BestSegmentTime />
-      <SegmentHistory />
-    </Segment>
-    <Segment>
-      <Name>Evil's Protector #2</Name>
+      <Name>Evil's Protector x2</Name>
       <Icon />
       <SplitTimes>
         <SplitTime name="Personal Best" />

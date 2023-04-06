@@ -14,7 +14,7 @@ public class FormSwitcherTypedPatch {
         @Advice.OnMethodExit
         public static void onExit(@Advice.Argument(0) FormComponent comp) {
             if (comp instanceof NewSaveForm) {
-                LivesplitHooksEntry.splits.reset();
+                LivesplitHooksEntry.config.splits.reset();
             }
         }
     }

@@ -1,39 +1,34 @@
 package livesplitHooks;
 
-import livesplitHooks.event.MobKillEvent;
-import necesse.engine.commands.CommandsManager;
-import necesse.engine.commands.PermissionLevel;
-import necesse.engine.commands.clientCommands.VoidClientCommand;
+import necesse.engine.Settings;
+import necesse.engine.localization.message.GameMessage;
+import necesse.engine.localization.message.LocalMessage;
+import necesse.engine.modLoader.ModSettings;
 import necesse.engine.modLoader.annotations.ModEntry;
+import necesse.gfx.ui.ButtonIcon;
 
 @ModEntry
 public class LivesplitHooksEntry {
+    public static Config config;
     public static LivesplitServer livesplitServer;
-    public static Splits splits;
+
+    public static ButtonIcon livesplitGreen_icon;
+    public static ButtonIcon livesplitRed_icon;
 
     public void init() {
         livesplitServer = new LivesplitServer();
+    }
 
-        splits = new Splits(new Segment(SplitTrigger.and(new MobKillEvent("evilsprotector"))),
-                new Segment(SplitTrigger.and(new MobKillEvent("evilsprotector"))),
-                new Segment(SplitTrigger.and(new MobKillEvent("voidwizard"))),
-                new Segment(SplitTrigger.and(new MobKillEvent("piratecaptain"))),
-                new Segment(SplitTrigger.and(new MobKillEvent("sageandgrit"))),
-                new Segment(SplitTrigger.and(new MobKillEvent("fallenwizard"))));
-
-        CommandsManager.registerClientCommand(new VoidClientCommand("tstart", "Start the timer",
-                PermissionLevel.USER, (client, log) -> livesplitServer.sendCommand("starttimer")));
-
-        CommandsManager.registerClientCommand(
-                new VoidClientCommand("tsplit", "Perform a split", PermissionLevel.USER,
-                        (client, log) -> splits.processEvent(new MobKillEvent("test"))));
-
-        CommandsManager.registerClientCommand(new VoidClientCommand("reset", "Reset the timer",
-                PermissionLevel.USER, (client, log) -> splits.reset()));
+    public ModSettings initSettings() {
+        config = new Config();
+        return config;
     }
 
     public void initResources() {
         livesplitServer.connect();
+
+        livesplitGreen_icon = new ButtonIcon(Settings.UI, "livesplit_green.png", false);
+        livesplitRed_icon = new ButtonIcon(Settings.UI, "livesplit_red.png", false);
     }
 
     public void dispose() {
@@ -42,9 +37,19 @@ public class LivesplitHooksEntry {
 
     public static void setLoading(boolean isLoading) {
         if (isLoading) {
-            livesplitServer.sendCommand("pausegametime");
+            livesplitServer.sendCommand(LivesplitServer.PAUSE_GAMETIME);
         } else {
-            livesplitServer.sendCommand("unpausegametime");
+            livesplitServer.sendCommand(LivesplitServer.UNPAUSE_GAMETIME);
         }
+    }
+
+    public static ButtonIcon getLivesplitIcon() {
+        return livesplitServer.isConnected() ? livesplitGreen_icon : livesplitRed_icon;
+    }
+
+    public static GameMessage getLivesplitTooltips() {
+        String messageId =
+                livesplitServer.isConnected() ? "livesplitconnected" : "livesplitnotconnected";
+        return new LocalMessage("ui", messageId);
     }
 }

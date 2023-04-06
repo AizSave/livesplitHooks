@@ -1,6 +1,9 @@
-package livesplitHooks;
+package livesplitHooks.split;
 
+import java.util.List;
 import livesplitHooks.event.SplitTriggerEvent;
+import necesse.engine.save.LoadData;
+import necesse.engine.save.SaveData;
 
 public class SplitTrigger {
     private static enum Operation {
@@ -45,5 +48,25 @@ public class SplitTrigger {
         for (SplitTriggerEvent event : events) {
             event.reset();
         }
+    }
+
+    public void addSaveData(SaveData save) {
+        save.addEnum("op", op);
+        for (SplitTriggerEvent event : events) {
+            SaveData eventData = new SaveData("EVENT");
+            event.addSaveData(eventData);
+            save.addSaveData(eventData);
+        }
+    }
+
+    public static SplitTrigger fromLoadData(LoadData save) {
+        Operation op = save.getEnum(Operation.class, "op");
+        List<LoadData> eventsData = save.getLoadDataByName("EVENT");
+        SplitTriggerEvent[] events = new SplitTriggerEvent[eventsData.size()];
+        int i = 0;
+        for (LoadData eventData : eventsData) {
+            events[i++] = SplitTriggerEvent.fromLoadData(eventData);
+        }
+        return new SplitTrigger(op, events);
     }
 }

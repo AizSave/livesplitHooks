@@ -1,0 +1,11 @@
+[ui]
+livesplitconnected=LiveSplit is connected
+livesplitnotconnected=Connect to LiveSplit
+
+livesplitconfigbutton=LiveSplit
+livesplit=LiveSplit
+livesplitport=Server port
+playerhunger=Player hunger
+enabled=Enabled
+disabled=Disabled
+customspawnlabel=Custom spawn

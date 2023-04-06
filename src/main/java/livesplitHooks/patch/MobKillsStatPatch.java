@@ -1,7 +1,7 @@
 package livesplitHooks.patch;
 
 import livesplitHooks.LivesplitHooksEntry;
-import livesplitHooks.event.MobKillEvent;
+import livesplitHooks.event.SplitTriggerEvent;
 import necesse.engine.modLoader.annotations.ModMethodPatch;
 import necesse.engine.playerStats.stats.MobKillsStat;
 import net.bytebuddy.asm.Advice;
@@ -11,7 +11,7 @@ public class MobKillsStatPatch {
     public static class addKillPatch {
         @Advice.OnMethodExit
         public static void onExit(@Advice.Argument(0) String mobID) {
-            LivesplitHooksEntry.splits.processEvent(new MobKillEvent(mobID));
+            LivesplitHooksEntry.config.splits.processEvent(SplitTriggerEvent.mobKill(mobID));
         }
     }
 }
