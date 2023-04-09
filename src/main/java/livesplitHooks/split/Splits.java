@@ -1,5 +1,6 @@
 package livesplitHooks.split;
 
+import java.util.Arrays;
 import java.util.List;
 import livesplitHooks.LivesplitHooksEntry;
 import livesplitHooks.LivesplitServer;
@@ -8,7 +9,7 @@ import necesse.engine.save.LoadData;
 import necesse.engine.save.SaveData;
 
 public class Splits {
-    private final Segment[] segments;
+    public final Segment[] segments;
     private int currSegmentIndex;
 
     public Splits(Segment... segments) {
@@ -64,5 +65,14 @@ public class Splits {
             segments[i++] = Segment.fromLoadData(segmentData);
         }
         return new Splits(segments);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Splits)) {
+            return false;
+        }
+        Splits other = (Splits) obj;
+        return Arrays.equals(segments, other.segments);
     }
 }

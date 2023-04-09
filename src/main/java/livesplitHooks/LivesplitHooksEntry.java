@@ -14,6 +14,7 @@ public class LivesplitHooksEntry {
 
     public static ButtonIcon livesplitGreen_icon;
     public static ButtonIcon livesplitRed_icon;
+    public static ButtonIcon button_add_20;
 
     public void init() {
         livesplitServer = new LivesplitServer();
@@ -29,6 +30,7 @@ public class LivesplitHooksEntry {
 
         livesplitGreen_icon = new ButtonIcon(Settings.UI, "livesplit_green.png", false);
         livesplitRed_icon = new ButtonIcon(Settings.UI, "livesplit_red.png", false);
+        button_add_20 = new ButtonIcon(Settings.UI, "button_add_20", false);
     }
 
     public void dispose() {

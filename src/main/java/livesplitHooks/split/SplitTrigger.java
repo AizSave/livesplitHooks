@@ -1,19 +1,30 @@
 package livesplitHooks.split;
 
+import java.util.Arrays;
 import java.util.List;
 import livesplitHooks.event.SplitTriggerEvent;
+import necesse.engine.localization.message.GameMessage;
+import necesse.engine.localization.message.LocalMessage;
 import necesse.engine.save.LoadData;
 import necesse.engine.save.SaveData;
 
 public class SplitTrigger {
-    private static enum Operation {
-        AND, OR
+    public static enum Operation {
+        AND("opand", "opandtip"), OR("opor", "oportip");
+
+        public final GameMessage label;
+        public final GameMessage tooltip;
+
+        private Operation(String labelKey, String tooltipKey) {
+            label = new LocalMessage("ui", labelKey);
+            tooltip = new LocalMessage("ui", tooltipKey);
+        }
     }
 
-    private final Operation op;
-    private final SplitTriggerEvent[] events;
+    public final Operation op;
+    public final SplitTriggerEvent[] events;
 
-    private SplitTrigger(Operation op, SplitTriggerEvent[] events) {
+    public SplitTrigger(Operation op, SplitTriggerEvent[] events) {
         this.op = op;
         this.events = events;
     }
@@ -68,5 +79,14 @@ public class SplitTrigger {
             events[i++] = SplitTriggerEvent.fromLoadData(eventData);
         }
         return new SplitTrigger(op, events);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SplitTrigger)) {
+            return false;
+        }
+        SplitTrigger other = (SplitTrigger) obj;
+        return op == other.op && Arrays.equals(events, other.events);
     }
 }

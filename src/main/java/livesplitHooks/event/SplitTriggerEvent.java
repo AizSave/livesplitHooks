@@ -1,18 +1,28 @@
 package livesplitHooks.event;
 
+import necesse.engine.localization.message.GameMessage;
+import necesse.engine.localization.message.LocalMessage;
 import necesse.engine.save.LoadData;
 import necesse.engine.save.SaveData;
 
 public class SplitTriggerEvent {
-    private static enum Type {
-        MOB_KILL
+    public static enum Type {
+        MOB_KILL("mobkill");
+
+        public final GameMessage label;
+        public final GameMessage tooltip;
+
+        private Type(String typeStr) {
+            label = new LocalMessage("ui", "event" + typeStr);
+            tooltip = new LocalMessage("ui", "event" + typeStr + "tip");
+        }
     }
 
-    private final Type type;
-    private final String data;
+    public final Type type;
+    public final String data;
     private boolean matched;
 
-    private SplitTriggerEvent(Type type, String data) {
+    public SplitTriggerEvent(Type type, String data) {
         this.type = type;
         this.data = data;
         matched = false;

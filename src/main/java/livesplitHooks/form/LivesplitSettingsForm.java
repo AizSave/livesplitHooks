@@ -29,6 +29,7 @@ import necesse.gfx.ui.ButtonColor;
 public class LivesplitSettingsForm extends Form {
     private SettingsForm settingsForm;
     private FormContentBox content;
+    private int preferredHeight;
 
     private FormTextInput portInput;
     private FormDropdownSelectionButton<GameDifficulty> difficulty;
@@ -39,8 +40,10 @@ public class LivesplitSettingsForm extends Form {
     private FormCheckBox useCustomSpawn;
     private FormTextInput spawnX;
     private FormTextInput spawnY;
+    private SplitsComponent splits;
 
     private FormLocalTextButton saveButton;
+    private FormLocalTextButton backButton;
 
     public LivesplitSettingsForm(SettingsForm settingsForm) {
         super(400, 40);
@@ -49,24 +52,32 @@ public class LivesplitSettingsForm extends Form {
         addComponent(new FormLocalLabel("ui", "livesplit", new FontOptions(20),
                 FormLocalLabel.ALIGN_MID, getWidth() / 2, 5));
 
-        content = addComponent(new FormContentBox(0, 30, getWidth(), getHeight() - 40));
-        FormFlow flow = new FormFlow(5);
-        int labelX = 24;
-        int inputX = getWidth() / 2 - 40;
+        int margin = 20;
+        int padding = 4;
+        content = addComponent(
+                new FormContentBox(margin, 30, getWidth() - 2 * margin, getHeight() - 40));
+        content.drawScrollBarOutsideBox = true;
+        FormFlow flow = new FormFlow(padding);
         int inputWidth = 200;
+        int inputX = content.getWidth() - inputWidth - padding;
         FontOptions labelOptions = new FontOptions(16);
 
         // LiveSplit server port input
         content.addComponent(new FormLocalLabel("ui", "livesplitport", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         portInput = content.addComponent(
                 new FormTextInput(inputX, flow.next(45) - 2, FormInputSize.SIZE_20, inputWidth, 5));
         portInput.placeHolder = new StaticMessage(portInput.getText());
         portInput.setRegexMatchFull("\\d*");
 
+        // World overrides label
+        content.addComponent(new FormLocalLabel("ui", "worldoverrides", labelOptions,
+                FormLocalLabel.ALIGN_MID, content.getWidth() / 2, flow.next(24)));
+
+
         // Difficulty selector
         content.addComponent(new FormLocalLabel("ui", "difficulty", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         difficulty = content.addComponent(new FormDropdownSelectionButton<>(inputX,
                 flow.next(25) - 2, FormInputSize.SIZE_20, ButtonColor.BASE, inputWidth));
         for (GameDifficulty value : GameDifficulty.values()) {
@@ -75,7 +86,7 @@ public class LivesplitSettingsForm extends Form {
 
         // Death penalty selector
         content.addComponent(new FormLocalLabel("ui", "deathpenalty", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         deathPenalty = content.addComponent(new FormDropdownSelectionButton<>(inputX,
                 flow.next(25) - 3, FormInputSize.SIZE_20, ButtonColor.BASE, inputWidth));
         for (GameDeathPenalty value : GameDeathPenalty.values()) {
@@ -84,7 +95,7 @@ public class LivesplitSettingsForm extends Form {
 
         // Raid frequency selector
         content.addComponent(new FormLocalLabel("ui", "raidfrequency", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         raidFrequency = content.addComponent(new FormDropdownSelectionButton<>(inputX,
                 flow.next(25) - 3, FormInputSize.SIZE_20, ButtonColor.BASE, inputWidth));
         for (GameRaidFrequency value : GameRaidFrequency.values()) {
@@ -93,17 +104,17 @@ public class LivesplitSettingsForm extends Form {
 
         // Hunger checkbox
         content.addComponent(new FormLocalLabel("ui", "playerhunger", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         playerHunger = content.addComponent(new FormCheckBox("", inputX, flow.next() + 2));
         hungerLabel = content.addComponent(new FormLocalLabel(null, labelOptions,
-                FormLocalLabel.ALIGN_LEFT, inputX + 20, flow.next(45)));
+                FormLocalLabel.ALIGN_LEFT, inputX + 20, flow.next(25)));
         playerHunger.onClicked(e -> {
             hungerLabel.setLocalization("ui", playerHunger.checked ? "enabled" : "disabled");
         });
 
         // Custom spawn settings
         content.addComponent(new FormLocalLabel("ui", "customspawnlabel", labelOptions,
-                FormLocalLabel.ALIGN_LEFT, labelX, flow.next()));
+                FormLocalLabel.ALIGN_LEFT, padding, flow.next()));
         useCustomSpawn = content.addComponent(new FormCheckBox("", inputX, flow.next() + 2));
 
         int coordWidth = (inputWidth - 24) / 2;
@@ -112,7 +123,7 @@ public class LivesplitSettingsForm extends Form {
         spawnX.placeHolder = new LocalMessage("ui", "xcoord");
         spawnX.setRegexMatchFull("-?\\d*");
 
-        spawnY = content.addComponent(new FormTextInput(inputX + 24 + coordWidth, flow.next(30) - 2,
+        spawnY = content.addComponent(new FormTextInput(inputX + 24 + coordWidth, flow.next(45) - 2,
                 FormInputSize.SIZE_20, coordWidth, 10));
         spawnY.placeHolder = new LocalMessage("ui", "ycoord");
         spawnY.setRegexMatchFull("-?\\d*");
@@ -122,24 +133,44 @@ public class LivesplitSettingsForm extends Form {
             spawnY.setActive(useCustomSpawn.checked);
         });
 
+        // Split segments
+        content.addComponent(new FormLocalLabel("ui", "segments", labelOptions,
+                FormLocalLabel.ALIGN_MID, content.getWidth() / 2, flow.next(24)));
+        splits = content.addComponent(new SplitsComponent(LivesplitHooksEntry.config.splits,
+                2 * padding, flow.next(308), content.getWidth() - 4 * padding));
+        splits.onResize(e -> {
+            int prevHeight = content.getContentBox().height;
+            Rectangle rect = new Rectangle(e.width, e.y + e.height + 8);
+            content.setContentBox(rect);
+            if (prevHeight < rect.height) {
+                content.scrollY(rect.height - prevHeight);
+            }
+        });
+
         // General menu buttons
         saveButton =
                 addComponent(new FormLocalTextButton("ui", "savebutton", 4, 0, getWidth() / 2 - 6));
         saveButton.onClicked(e -> saveOptions());
-        FormLocalTextButton backButton = addComponent(new FormLocalTextButton("ui", "backbutton",
-                getWidth() / 2 + 2, 0, getWidth() / 2 - 6));
+        backButton = addComponent(new FormLocalTextButton("ui", "backbutton", getWidth() / 2 + 2, 0,
+                getWidth() / 2 - 6));
         backButton.onClicked(e -> settingsForm.subMenuBackPressed());
 
-        // Sizing and position tweaks
-        int height = GameMath.limit(60 + flow.next(), 100, Screen.getHudHeight() - 100);
+        preferredHeight = flow.next() + 60;
+        updateHeight();
+        resetOptions();
+    }
+
+    private void updateHeight() {
+        int height = GameMath.limit(preferredHeight, 100, Screen.getHudHeight() - 100);
         setHeight(height);
-        content.setHeight(flow.next());
-        content.setContentBox(new Rectangle(getWidth(), getHeight() - 80));
+        Rectangle rect = content.getContentBoxToFitComponents();
+        rect.width = content.getContentWidth();
+        rect.height += 8;
+        content.setContentBox(rect);
+        content.setHeight(getHeight() - 80);
         saveButton.setY(getHeight() - 40);
         backButton.setY(getHeight() - 40);
         setPosMiddle(Screen.getHudWidth() / 2, Screen.getHudHeight() / 2);
-
-        resetOptions();
     }
 
     private int stoi(String str) {
@@ -163,6 +194,8 @@ public class LivesplitSettingsForm extends Form {
         spawnX.setActive(config.useCustomSpawn);
         spawnY.setText(String.valueOf(config.spawnY));
         spawnY.setActive(config.useCustomSpawn);
+        splits.setSplits(config.splits);
+        content.setScrollY(0);
     }
 
     public void saveOptions() {
@@ -175,6 +208,7 @@ public class LivesplitSettingsForm extends Form {
         config.useCustomSpawn = useCustomSpawn.checked;
         config.spawnX = stoi(spawnX.getText());
         config.spawnY = stoi(spawnY.getText());
+        config.splits = splits.getSplits();
         Settings.saveClientSettings();
     }
 
@@ -187,7 +221,8 @@ public class LivesplitSettingsForm extends Form {
                 || config.playerHunger != playerHunger.checked
                 || config.useCustomSpawn != useCustomSpawn.checked
                 || config.spawnX != stoi(spawnX.getText())
-                || config.spawnY != stoi(spawnY.getText());
+                || config.spawnY != stoi(spawnY.getText())
+                || !config.splits.equals(splits.getSplits());
         saveButton.setActive(modified);
         settingsForm.setSaveActive(modified);
     }
@@ -200,6 +235,7 @@ public class LivesplitSettingsForm extends Form {
 
     @Override
     public void onWindowResized() {
+        updateHeight();
         setPosMiddle(Screen.getHudWidth() / 2, Screen.getHudHeight() / 2);
     }
 }

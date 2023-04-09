@@ -5,10 +5,14 @@ import necesse.engine.save.LoadData;
 import necesse.engine.save.SaveData;
 
 public class Segment {
-    private final SplitTrigger trigger;
+    public final SplitTrigger trigger;
 
     public Segment(SplitTrigger trigger) {
         this.trigger = trigger;
+    }
+
+    public Segment() {
+        this(SplitTrigger.and(SplitTriggerEvent.mobKill("evilsprotector")));
     }
 
     public boolean processEvent(SplitTriggerEvent event) {
@@ -29,5 +33,13 @@ public class Segment {
         LoadData triggerData = save.getFirstLoadDataByName("TRIGGER");
         SplitTrigger trigger = SplitTrigger.fromLoadData(triggerData);
         return new Segment(trigger);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Segment)) {
+            return false;
+        }
+        return trigger.equals(((Segment) obj).trigger);
     }
 }
