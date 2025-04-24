@@ -26,11 +26,13 @@ public class LivesplitHooksEntry {
     }
 
     public void initResources() {
-        livesplitServer.connect();
-
         livesplitGreen_icon = new ButtonIcon(Settings.UI, "livesplit_green.png", false);
         livesplitRed_icon = new ButtonIcon(Settings.UI, "livesplit_red.png", false);
         button_add_20 = new ButtonIcon(Settings.UI, "button_add_20", false);
+    }
+
+    public void postInit() {
+        livesplitServer.connect();
     }
 
     public void dispose() {

@@ -6,12 +6,13 @@ import livesplitHooks.LivesplitHooksEntry;
 import necesse.engine.GameDeathPenalty;
 import necesse.engine.GameDifficulty;
 import necesse.engine.GameRaidFrequency;
-import necesse.engine.Screen;
 import necesse.engine.Settings;
+import necesse.engine.gameLoop.tickManager.TickManager;
 import necesse.engine.localization.message.LocalMessage;
 import necesse.engine.localization.message.StaticMessage;
-import necesse.engine.tickManager.TickManager;
 import necesse.engine.util.GameMath;
+import necesse.engine.window.GameWindow;
+import necesse.engine.window.WindowManager;
 import necesse.entity.mobs.PlayerMob;
 import necesse.gfx.forms.Form;
 import necesse.gfx.forms.components.FormCheckBox;
@@ -156,12 +157,12 @@ public class LivesplitSettingsForm extends Form {
         backButton.onClicked(e -> settingsForm.subMenuBackPressed());
 
         preferredHeight = flow.next() + 60;
-        updateHeight();
+        updateHeight(WindowManager.getWindow());
         resetOptions();
     }
 
-    private void updateHeight() {
-        int height = GameMath.limit(preferredHeight, 100, Screen.getHudHeight() - 100);
+    private void updateHeight(GameWindow window) {
+        int height = GameMath.limit(preferredHeight, 100, window.getHudHeight() - 100);
         setHeight(height);
         Rectangle rect = content.getContentBoxToFitComponents();
         rect.width = content.getContentWidth();
@@ -170,7 +171,7 @@ public class LivesplitSettingsForm extends Form {
         content.setHeight(getHeight() - 80);
         saveButton.setY(getHeight() - 40);
         backButton.setY(getHeight() - 40);
-        setPosMiddle(Screen.getHudWidth() / 2, Screen.getHudHeight() / 2);
+        setPosMiddle(window.getHudWidth() / 2, window.getHudHeight() / 2);
     }
 
     private int stoi(String str) {
@@ -234,8 +235,8 @@ public class LivesplitSettingsForm extends Form {
     }
 
     @Override
-    public void onWindowResized() {
-        updateHeight();
-        setPosMiddle(Screen.getHudWidth() / 2, Screen.getHudHeight() / 2);
+    public void onWindowResized(GameWindow window) {
+        updateHeight(window);
+        setPosMiddle(window.getHudWidth() / 2, window.getHudHeight() / 2);
     }
 }
